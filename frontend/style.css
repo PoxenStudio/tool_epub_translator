@@ -1,0 +1,130 @@
+/* theme.css 的 body 只给了 margin:24px，页面自己再留一点底部呼吸区，避免最后一张卡片
+   紧贴 iframe 底边——这是"内容显示不清/没有底部留白"反馈的直接原因之一。 */
+body { padding-bottom: 48px; }
+
+h1 { font-size: 1.3em; margin: 4px 0 20px; }
+
+/* 每个功能区都是一张独立的 .mb-card，卡片之间用 margin 分隔——之前用 <section> 裸奔
+   + <hr> 分隔，没有任何背景/边框把一组控件圈在一起，看起来就是一堆散落的文字和输入框。 */
+.panel { margin-bottom: 20px; }
+.panel > h2 {
+  font-size: 1em;
+  margin: 0 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--mb-color-border);
+}
+
+/* .mb-field（见 lib/theme.css）是给"复选框/单选框 + 一小段文字"这种横向短标签设计的
+   inline-flex，不是通用的表单字段容器；这里的文本输入 / 下拉框 / 文本域需要"标签在上、
+   控件在下、独占一行"的纵向布局，用自己的 class，不要套用 .mb-field。 */
+.stack-field { display: block; margin-bottom: 16px; }
+.stack-field:last-child { margin-bottom: 0; }
+.stack-field > span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.88em;
+  color: var(--mb-color-text-secondary);
+}
+
+.row-gap { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.grow { flex: 1 1 220px; min-width: 0; }
+
+/* 来源切换做成下划线 tab，而不是两个平级的实心按钮（两个 .mb-btn 挨在一起，仅凭透明度
+   区分选中态，很容易被看成两个可以同时点的操作按钮）。 */
+.tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--mb-color-border); }
+.tab-btn {
+  background: none;
+  border: none;
+  font: inherit;
+  font-weight: 500;
+  padding: 8px 6px;
+  margin-bottom: -1px;
+  color: var(--mb-color-text-secondary);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+.tab-btn.active { color: var(--mb-color-primary); border-bottom-color: var(--mb-color-primary); }
+.tab-panel[hidden] { display: none; }
+
+/* .mb-btn 自带 display:inline-flex（见 lib/theme.css），跟浏览器内置的
+   [hidden]{display:none} 特异性打平时会被作者样式表盖过，导致按钮设了 hidden 属性
+   却仍然显示——跟上面 .tab-panel[hidden] 是同一类坑，这里补一条覆盖规则。 */
+.mb-btn[hidden] { display: none; }
+
+/* 书名和"取消"按钮同一行，按钮贴右——书名可能很长，用 min-width:0 + ellipsis 保证
+   不会把按钮挤出去。 */
+.task-book-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.task-book-row #task-book {
+  margin: 0;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.task-book-row #task-cancel-btn {
+  flex: 0 0 auto;
+  padding: 6px 14px;
+  font-size: 0.9em;
+}
+
+.token-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 8px;
+  margin: 14px 0;
+  padding: 12px;
+  background: var(--mb-color-surface);
+  border: 1px solid var(--mb-color-border);
+  border-radius: var(--mb-radius);
+}
+.token-grid .cell { text-align: center; }
+.token-grid .cell .value { font-size: 1.15em; font-weight: 600; }
+
+#book-list {
+  max-height: 260px;
+  overflow-y: auto;
+  margin-top: 12px;
+  border: 1px solid var(--mb-color-border);
+  border-radius: var(--mb-radius);
+}
+#book-list:empty { display: none; }
+#book-list .mb-list-item { cursor: pointer; padding: 8px; }
+#book-list .mb-list-item.selected { background: var(--mb-color-surface); outline: 2px solid var(--mb-color-primary); outline-offset: -2px; }
+
+#book-list .mb-list-item__cover {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 56px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--mb-color-surface);
+  border: 1px solid var(--mb-color-border);
+}
+#book-list .mb-list-item__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+#book-list .mb-list-item__content { min-width: 0; }
+#book-list .mb-list-item__title {
+  font-weight: 500;
+  font-size: 0.95em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#book-list .mb-list-item__subtitle {
+  color: var(--mb-color-text-secondary);
+  font-size: 0.85em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hint { margin-top: 10px; }
+.actions { margin-top: 18px; }

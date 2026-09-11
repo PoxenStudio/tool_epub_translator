@@ -1,0 +1,24 @@
+{
+  "tool_id": "epub_translator",
+  "name": "EPUB 翻译",
+  "description": "使用 LLM 翻译 EPUB 电子书，支持书库选书或本地上传，输出下载或生成新书",
+  "revision": "0.1.0",
+  "author": "Horky",
+  "publish_date": "2026-09-08",
+  "core_api_version": "1.3.0",
+  "entry_backend": "tool.EpubTranslator",
+  "entry_frontend": "index.html",
+  "page": "epub_translator",
+  "repo_url": "https://github.com/horky/tool_epub_translator",
+  "locales": ["en","zh"],
+  "default_locale": "en",
+  "api_routes": [
+    { "path": "config", "handler": "tool.ConfigHandler" },
+    { "path": "test", "handler": "tool.TestConnectionHandler" },
+    { "path": "books", "handler": "tool.BooksHandler" },
+    { "path": "status", "handler": "tool.StatusHandler" },
+    { "path": "translate", "handler": "tool.TranslateHandler" },
+    { "path": "cancel", "handler": "tool.CancelHandler" },
+    { "path": "result", "handler": "tool.ResultHandler" }
+  ]
+}

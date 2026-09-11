@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>EPUB Translator</title>
+  <link rel="stylesheet" href="lib/theme.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="mb-container">
+    <!-- 1. LLM 配置 -->
+    <section class="mb-card panel">
+      <h2 data-i18n="section.config">LLM Configuration</h2>
+      <label class="stack-field">
+        <span data-i18n="config.apiUrl">API URL</span>
+        <input id="cfg-api-url" class="mb-input" type="text" data-i18n-attr="placeholder:config.apiUrl.placeholder" />
+      </label>
+      <label class="stack-field">
+        <span data-i18n="config.apiKey">API Key</span>
+        <input id="cfg-api-key" class="mb-input" type="password" autocomplete="off" />
+      </label>
+      <label class="stack-field">
+        <span data-i18n="config.model">Model</span>
+        <input id="cfg-model" class="mb-input" type="text" data-i18n-attr="placeholder:config.model.placeholder" />
+      </label>
+      <label class="stack-field">
+        <span data-i18n="config.tokenEncoding">Token Encoding</span>
+        <input id="cfg-token-encoding" class="mb-input" type="text" list="token-encoding-options" />
+        <datalist id="token-encoding-options">
+          <option value="o200k_base"></option>
+          <option value="cl100k_base"></option>
+        </datalist>
+      </label>
+      <label class="stack-field">
+        <span data-i18n="config.targetLanguage">Target Language</span>
+        <select id="cfg-target-language" class="mb-select"></select>
+      </label>
+      <label class="stack-field">
+        <span data-i18n="config.submitKind">Translation Mode</span>
+        <select id="cfg-submit-kind" class="mb-select">
+          <option value="APPEND_BLOCK" data-i18n="config.submitKind.appendBlock">Append translation as block (recommended)</option>
+          <option value="APPEND_TEXT" data-i18n="config.submitKind.appendText">Append translation as plain text</option>
+          <option value="REPLACE" data-i18n="config.submitKind.replace">Replace original text</option>
+        </select>
+      </label>
+      <label class="stack-field">
+        <span data-i18n="config.userPrompt">Extra prompt (optional)</span>
+        <textarea id="cfg-user-prompt" class="mb-textarea" rows="3" data-i18n-attr="placeholder:config.userPrompt.placeholder"></textarea>
+      </label>
+      <div class="actions row-gap">
+        <button id="cfg-test-btn" class="mb-btn mb-btn--secondary" data-i18n="config.test">Test Connection</button>
+        <button id="cfg-save-btn" class="mb-btn" data-i18n="config.save">Save Configuration</button>
+      </div>
+      <div id="cfg-alert" class="mb-alert hint" hidden></div>
+    </section>
+
+    <!-- 2. 选择书籍 -->
+    <section class="mb-card panel">
+      <h2 data-i18n="section.source">Choose an EPUB to translate</h2>
+      <div class="row-gap">
+        <input id="book-search" class="mb-input grow" type="text" data-i18n-attr="placeholder:source.search.placeholder" />
+        <button id="book-search-btn" class="mb-btn mb-btn--secondary" data-i18n="source.search.button">Search</button>
+      </div>
+      <div id="book-list"></div>
+      <p id="source-selected" class="mb-text-secondary hint" hidden></p>
+    </section>
+
+    <!-- 3. 输出方式 -->
+    <section class="mb-card panel">
+      <h2 data-i18n="section.output">Delivery</h2>
+      <div class="row-gap">
+        <label class="mb-field">
+          <input type="radio" name="output-mode" value="download" />
+          <span data-i18n="output.download">Download the result</span>
+        </label>
+        <label class="mb-field">
+          <input type="radio" name="output-mode" value="new_book" checked />
+          <span data-i18n="output.newBook">Create a new book</span>
+        </label>
+      </div>
+      <label id="new-book-title-field" class="stack-field hint">
+        <span data-i18n="output.newBook.titleLabel">New book title (optional)</span>
+        <input id="new-book-title" class="mb-input" type="text" data-i18n-attr="placeholder:output.newBook.titlePlaceholder" />
+      </label>
+
+      <div class="actions row-gap">
+        <button id="start-btn" class="mb-btn" data-i18n="action.start">Start Translation</button>
+      </div>
+      <div id="start-alert" class="mb-alert hint" hidden></div>
+    </section>
+
+    <!-- 4. 任务进度 -->
+    <section class="mb-card panel">
+      <h2 data-i18n="section.task">Task Progress</h2>
+      <div id="task-empty" class="mb-text-secondary" data-i18n="task.empty">No translation task yet</div>
+      <div id="task-panel" hidden>
+        <div class="task-book-row">
+          <p id="task-book" class="mb-text-secondary"></p>
+          <button id="task-cancel-btn" class="mb-btn mb-btn--secondary" data-i18n="action.cancel" hidden></button>
+        </div>
+        <p id="task-stage"></p>
+        <div class="mb-progress-linear">
+          <div id="task-progress-bar" class="mb-progress-linear__bar" style="width:0%"></div>
+        </div>
+        <div id="task-tokens" class="token-grid">
+          <div class="cell">
+            <div class="value" id="token-input">–</div>
+            <div class="mb-text-secondary" data-i18n="task.tokens.input">Input</div>
+          </div>
+          <div class="cell">
+            <div class="value" id="token-cache">–</div>
+            <div class="mb-text-secondary" data-i18n="task.tokens.inputCache">Cache hit</div>
+          </div>
+          <div class="cell">
+            <div class="value" id="token-output">–</div>
+            <div class="mb-text-secondary" data-i18n="task.tokens.output">Output</div>
+          </div>
+          <div class="cell">
+            <div class="value" id="token-total">–</div>
+            <div class="mb-text-secondary" data-i18n="task.tokens.total">Total</div>
+          </div>
+        </div>
+        <p id="token-unavailable" class="mb-text-secondary" data-i18n="task.tokens.unavailable" hidden></p>
+        <div id="task-error-alert" class="mb-alert mb-alert--error" hidden></div>
+      </div>
+    </section>
+
+    <!-- 5. 结果 -->
+    <section id="result-section" class="mb-card panel" hidden>
+      <h2 data-i18n="section.result">Result</h2>
+      <div id="result-download-panel" hidden>
+        <a id="result-download-link" class="mb-btn mb-btn--secondary" data-i18n="result.download">Download EPUB</a>
+      </div>
+      <p id="result-downloaded-hint" class="mb-text-secondary" data-i18n="result.downloaded" hidden></p>
+      <div id="result-newbook-panel" hidden>
+        <div class="mb-alert mb-alert--success">
+          <span data-i18n="result.newBook.success">New book created</span>：
+          <span id="result-newbook-title"></span>
+          &nbsp;<a id="result-newbook-link" href="#" target="_blank" rel="noopener" data-i18n="result.newBook.open">Open the new book</a>
+        </div>
+      </div>
+      <div id="result-expired-panel" class="mb-alert mb-alert--warning" data-i18n="result.expired" hidden></div>
+    </section>
+  </div>
+
+  <script src="/static/toolbox-bridge.js"></script>
+  <script src="lib/i18n.js"></script>
+  <!-- 下面四个按"配置 / 选书 / 任务与结果 / 启动入口"拆分，靠加载顺序共享全局作用域，
+       state.js 必须排第一（bridge/i18n/state/$ 等其它模块都要用）。 -->
+  <script src="js/state.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/source.js"></script>
+  <script src="js/task.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
