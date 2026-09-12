@@ -51,6 +51,10 @@ h1 { font-size: 1.3em; margin: 4px 0 20px; }
    却仍然显示——跟上面 .tab-panel[hidden] 是同一类坑，这里补一条覆盖规则。 */
 .mb-btn[hidden] { display: none; }
 
+/* .mb-alert 自带 display:flex（见 lib/theme.css），同样会覆盖浏览器内置的
+   [hidden]{display:none}，导致 alert 设 hidden 后 border 仍可见。 */
+.mb-alert[hidden] { display: none; }
+
 /* 书名和"取消"按钮同一行，按钮贴右——书名可能很长，用 min-width:0 + ellipsis 保证
    不会把按钮挤出去。 */
 .task-book-row {

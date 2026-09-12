@@ -1,6 +1,8 @@
-# EPUB 翻译（epub_translator）
+# MyBooks书库 EPUB 翻译工具
 
 MyBooks Toolbox 外部工具：用 LLM 把 EPUB 电子书翻译成目标语言。
+
+[MyBooks项目地址](https://github.com/poxenstudio/mybooks)
 
 ## 功能简介
 
