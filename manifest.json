@@ -11,7 +11,7 @@
   "page": "epub_translator",
   "repo_url": "https://github.com/horky/tool_epub_translator",
   "locales": ["en","zh"],
-  "default_locale": "en",
+  "default_locale": "zh",
   "api_routes": [
     { "path": "config", "handler": "tool.ConfigHandler" },
     { "path": "test", "handler": "tool.TestConnectionHandler" },
